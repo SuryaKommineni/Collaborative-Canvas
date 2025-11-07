@@ -1,4 +1,7 @@
-const socket = io("https://<your-render-app-name>.onrender.com");
+const socket = io("https://collaborative-canvas-abbg.onrender.com"  {
+  transports: ["websocket"],
+}); 
+
 
 socket.on("connect", () => console.log("✅ Connected:", socket.id));
 socket.on("disconnect", () => console.log("🔴 Disconnected"));
