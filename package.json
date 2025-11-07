@@ -1,0 +1,16 @@
+{
+  "name": "collaborative-canvas",
+  "version": "1.0.0",
+  "description": "A real-time collaborative drawing canvas built with Node.js, Express, Socket.io, and HTML5 Canvas.",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js"
+  },
+  "author": "Surya",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0",
+    "socket.io": "^4.8.1",
+    "uuid": "^13.0.0"
+  }
+}

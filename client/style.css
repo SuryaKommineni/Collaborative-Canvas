@@ -1,0 +1,85 @@
+body, html {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #ffffff;
+  font-family: Arial, sans-serif;
+}
+
+/* Make canvases sit behind the toolbar */
+canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 0; /* 👈 ensure they are below UI elements */
+}
+
+/* Transparent cursor layer stays on top of drawing, but below toolbar */
+#cursorLayer {
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Toolbar and users list appear above everything */
+#toolbar {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  z-index: 10; /* 👈 put it above canvases */
+}
+
+#users {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  padding: 10px;
+  min-width: 140px;
+  text-align: left;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  z-index: 15;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+}
+
+/* Transparent overlay (cursor or shape preview layer) */
+canvas:not(#c) {
+  pointer-events: none;   /* ✅ lets clicks pass through */
+}
+
+#c {
+  z-index: 1; /* main drawing canvas */
+  pointer-events: auto;
+}
+
+canvas:not(#c) {
+  z-index: 2; /* overlay for previews */
+  pointer-events: none; /* must be none */
+}
+
+#toolbar {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+#toolbar label {
+  font-size: 12px;
+  margin-right: 4px;
+}
