@@ -1,4 +1,4 @@
-const socket = io("http://localhost:3000"); // explicit host
+const socket = io("https://<your-render-app-name>.onrender.com");
 
 socket.on("connect", () => console.log("✅ Connected:", socket.id));
 socket.on("disconnect", () => console.log("🔴 Disconnected"));
