@@ -1,5 +1,5 @@
 const socket = io("https://collaborative-canvas-abbg.onrender.com"  {
-  transports: ["websocket"],
+ transports: ["websocket", "polling"],
 }); 
 
 
