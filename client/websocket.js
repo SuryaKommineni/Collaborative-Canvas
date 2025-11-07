@@ -1,6 +1,8 @@
-const socket = io("https://collaborative-canvas-abbg.onrender.com"  {
- transports: ["websocket", "polling"],
-}); 
+const socket = io("https://collaborative-canvas-abbg.onrender.com", {
+  transports: ["websocket", "polling"],
+  withCredentials: true,
+});
+
 
 
 socket.on("connect", () => console.log("✅ Connected:", socket.id));
