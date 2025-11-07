@@ -76,8 +76,10 @@ socket.on("disconnect", () => {
 
 app.use(express.static(path.join(__dirname, "../client")));
 
-app.get("/*", (req, res) => {
+// 🚀 Express v5 compatible catch-all route
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, "../client/index.html"));
 });
+
 
 server.listen(PORT, () => console.log(`✅ Server running on http://localhost:${PORT}`));
