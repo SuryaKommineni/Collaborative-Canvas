@@ -33,11 +33,12 @@ class DrawingState {
 
   redo() {
     const op = this.undoneStack.pop();
-    if (!op) return false;
+    if (!op) return null;
 
-    op.active = true;  // ✅ Reactivate instead of pushing again
-    return true;
+    op.active = true;
+    return op;
   }
 }
 
 module.exports = { DrawingState };
+
