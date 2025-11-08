@@ -43,7 +43,7 @@ class RoomManager {
   getOrCreate(roomId) {
     if (!this.rooms.has(roomId)) {
       this.rooms.set(roomId, {
-        state: new CanvasState(),
+        state: new DrawingState(),
         clients: new Map(),   // ✅ Map ensures unique socket IDs
 
         addClient(user) {
