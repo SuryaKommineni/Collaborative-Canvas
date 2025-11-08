@@ -68,7 +68,7 @@ The server automatically hosts the frontend from the /client folder.
 
 ---
 
-##Known Limitations / Bugs
+##  Known Limitations / Bugs
 | Issue / Limitation                    | Explanation                                                                            |
 | ------------------------------------- | -------------------------------------------------------------------------------------- |
 | Undo/Redo is **global**, not per-user | Undo removes the most recent operation on the shared canvas, regardless of who drew it |
@@ -78,7 +78,7 @@ The server automatically hosts the frontend from the /client folder.
 
 ---
 
-##Time Spent on the Project
+##   Time Spent on the Project
 | Task                                      | Time      |
 | ----------------------------------------- | --------- |
 | Canvas drawing tools implementation       | **6 hrs** |
@@ -90,7 +90,7 @@ The server automatically hosts the frontend from the /client folder.
 
 ---
 
-##📁 Project Structure
+##  📁 Project Structure
 /client
   ├── index.html        # UI & canvas container
   ├── canvas.js         # Draw operations, toolbar tools
@@ -104,7 +104,7 @@ The server automatically hosts the frontend from the /client folder.
 
 ---
 
-##🧰 Tech Stack
+##  🧰 Tech Stack
 | Component               | Technology                           |
 | ----------------------- | ------------------------------------ |
 | Frontend                | HTML Canvas API + Vanilla JavaScript |
