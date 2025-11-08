@@ -28,11 +28,7 @@ io.on("connection", (socket) => {
   const currentRoom = "main";
   const room = rooms.getOrCreate(currentRoom);
 
-  // ✅ Add user uniquely (not multiple tabs)
-  room.addClient({
-    id: socket.id,
-    username: `User-${socket.id.slice(0, 4)}`,
-  });
+ room.addClient(socket.id);
 
   // Send initial state
   socket.emit("history", room.state.getActiveOps());

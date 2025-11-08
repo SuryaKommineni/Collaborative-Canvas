@@ -52,6 +52,7 @@ document.getElementById("circle").addEventListener("click", () => (tool = "circl
 document.getElementById("text").addEventListener("click", () => (tool = "text"));
 document.getElementById("addImage").addEventListener("click", () => imageLoader.click());
 document.getElementById("undo").addEventListener("click", () => ws.sendUndo());
+document.getElementById("redo").addEventListener("click", () => ws.sendRedo());
 let fontSize = 30; // default text size
 
 document.getElementById("fontSize").addEventListener("input", (e) => {
