@@ -3,7 +3,8 @@ const socket = io("https://collaborative-canvas-abbg.onrender.com", {
   withCredentials: true,
 });
 
-
+// ✅ expose socket for debugging (important!)
+window.socket = socket;
 
 socket.on("connect", () => console.log("✅ Connected:", socket.id));
 socket.on("disconnect", () => console.log("🔴 Disconnected"));
@@ -17,4 +18,5 @@ const ws = {
   on: (event, handler) => socket.on(event, handler),
 };
 
+// ✅ expose ws for app usage
 window.ws = ws;

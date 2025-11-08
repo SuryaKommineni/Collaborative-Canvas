@@ -9,10 +9,13 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "https://collaborative-canvas-1.onrender.com",
+    origin: ["https://collaborative-canvas-1.onrender.com", "http://localhost:3000"],
     methods: ["GET", "POST"],
+    credentials: true,
   },
+  transports: ["websocket", "polling"],
 });
+
 
 // Manage rooms & drawing state
 const rooms = new RoomManager();
@@ -51,12 +54,16 @@ io.on("connection", (socket) => {
 
   // Undo / Redo
   socket.on("undo", () => {
-    if (room.state.undo()) io.emit("history", room.state.getActiveOps());
-  });
+  const ok = room.state.undo();
+  console.log("UNDO:", ok, "undoneStack:", room.state.undoneStack.length);
+  if (ok) io.emit("history", room.state.getActiveOps());
+});
 
-  socket.on("redo", () => {
-    if (room.state.redo()) io.emit("history", room.state.getActiveOps());
-  });
+socket.on("redo", () => {
+  const ok = room.state.redo();
+  console.log("REDO:", ok, "undoneStack:", room.state.undoneStack.length);
+  if (ok) io.emit("history", room.state.getActiveOps());
+});
 
   // Live pointer sharing
   socket.on("pointer", (data) => {
