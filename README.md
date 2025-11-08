@@ -39,6 +39,7 @@ After starting, open the browser and visit:
 
 The server automatically hosts the frontend from the /client folder.
 
+---
 
 ## 👥 How to Test With Multiple Users
 
@@ -65,8 +66,9 @@ The server automatically hosts the frontend from the /client folder.
 
 🔄 Global undo/redo (affects everyone together)
 
+---
 
-Known Limitations / Bugs
+##Known Limitations / Bugs
 | Issue / Limitation                    | Explanation                                                                            |
 | ------------------------------------- | -------------------------------------------------------------------------------------- |
 | Undo/Redo is **global**, not per-user | Undo removes the most recent operation on the shared canvas, regardless of who drew it |
@@ -74,8 +76,9 @@ Known Limitations / Bugs
 | Image operations are large            | Images are stored as Base64; too many images may affect performance                    |
 | UI not fully mobile optimized         | Works on mobile but toolbar alignment needs improvement                                |
 
+---
 
-Time Spent on the Project
+##Time Spent on the Project
 | Task                                      | Time      |
 | ----------------------------------------- | --------- |
 | Canvas drawing tools implementation       | **6 hrs** |
@@ -85,9 +88,9 @@ Time Spent on the Project
 | Documentation                             | **1 hr**  |
 ✅ Total time spent: ~17 hours
 
+---
 
-
-📁 Project Structure
+##📁 Project Structure
 /client
   ├── index.html        # UI & canvas container
   ├── canvas.js         # Draw operations, toolbar tools
@@ -99,8 +102,9 @@ Time Spent on the Project
   ├── drawing-state.js  # Global Undo/Redo implementation
   ├── rooms.js          # Room and user management
 
+---
 
-🧰 Tech Stack
+##🧰 Tech Stack
 | Component               | Technology                           |
 | ----------------------- | ------------------------------------ |
 | Frontend                | HTML Canvas API + Vanilla JavaScript |
