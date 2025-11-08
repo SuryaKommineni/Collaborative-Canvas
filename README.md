@@ -40,26 +40,30 @@ After starting, open the browser and visit:
 The server automatically hosts the frontend from the /client folder.
 
 
-How to Test With Multiple Users
+## 👥 How to Test With Multiple Users
 
-Run the app using npm start
+1. Start the application:
 
-Open two different browser windows/tabs
+   ```bash
+   npm start
 
-Visit the same URL on both:
+2. Open the project in your browser:
+   http://localhost:3000
 
-http://localhost:3000
+3. To test multiple users, open the same URL in:
+   Another browser tab/window, or
+   Another different browser, or
+   Another device connected to the same network
 
+4. Start drawing in one window — the drawing appears instantly in the other.
 
-Start drawing on one screen — the drawing appears instantly on the other.
+✅ Expected Real-Time Behavior
 
-The project shows:
+✏️ Real-time strokes from all connected users
 
-Real-time strokes from all users
+🎨 Unique cursor color + username shown for each user
 
-User-specific colored cursors + their username
-
-Global undo/redo (affects both users)
+🔄 Global undo/redo (affects everyone together)
 
 
 Known Limitations / Bugs
