@@ -37,13 +37,35 @@ class Room {
 
 class RoomManager {
   constructor() {
-    this.rooms = new Map(); // roomName -> Room
+    this.rooms = new Map();
   }
 
-  getOrCreate(roomName) {
-    if (!this.rooms.has(roomName)) this.rooms.set(roomName, new Room());
-    return this.rooms.get(roomName);
+  getOrCreate(roomId) {
+    if (!this.rooms.has(roomId)) {
+      this.rooms.set(roomId, {
+        state: new CanvasState(),
+        clients: new Map(),   // ✅ Map ensures unique socket IDs
+
+        addClient(user) {
+          this.clients.set(user.id, user);
+        },
+
+        removeClient(id) {
+          this.clients.delete(id);
+        },
+
+        getClientList() {
+          return [...this.clients.values()];
+        },
+
+        getUser(id) {
+          return this.clients.get(id);
+        }
+      });
+    }
+    return this.rooms.get(roomId);
   }
 }
 
 module.exports = { RoomManager };
+

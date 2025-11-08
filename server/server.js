@@ -6,13 +6,13 @@ const { RoomManager } = require("./rooms");
 
 const app = express();
 const server = http.createServer(app);
+
 const io = new Server(server, {
   cors: {
     origin: "https://collaborative-canvas-1.onrender.com",
     methods: ["GET", "POST"],
   },
 });
-
 
 // Manage rooms & drawing state
 const rooms = new RoomManager();
@@ -24,31 +24,41 @@ io.on("connection", (socket) => {
 
   const currentRoom = "main";
   const room = rooms.getOrCreate(currentRoom);
-  room.addClient(socket.id);
 
+  // ✅ Add user uniquely (not multiple tabs)
+  room.addClient({
+    id: socket.id,
+    username: `User-${socket.id.slice(0, 4)}`,
+  });
+
+  // Send initial state
   socket.emit("history", room.state.getActiveOps());
+
+  // ✅ Send updated user list (only active users)
   io.emit("userList", room.getClientList());
 
+  // Live drawing
   socket.on("draw", (segment) => {
     socket.broadcast.emit("draw", segment);
   });
 
+  // Operation commit
   socket.on("op", (op) => {
     if (!op) return;
     const newOp = room.state.appendOp(op, socket.id);
     io.emit("op", newOp);
   });
 
+  // Undo / Redo
   socket.on("undo", () => {
-    const result = room.state.undo();
-    if (result) io.emit("history", room.state.getActiveOps());
+    if (room.state.undo()) io.emit("history", room.state.getActiveOps());
   });
 
   socket.on("redo", () => {
-    const result = room.state.redo();
-    if (result) io.emit("history", room.state.getActiveOps());
+    if (room.state.redo()) io.emit("history", room.state.getActiveOps());
   });
 
+  // Live pointer sharing
   socket.on("pointer", (data) => {
     const user = room.getUser(socket.id);
     if (!user) return;
@@ -62,6 +72,7 @@ io.on("connection", (socket) => {
     });
   });
 
+  // On disconnect
   socket.on("disconnect", () => {
     room.removeClient(socket.id);
     io.emit("userList", room.getClientList());
@@ -70,7 +81,7 @@ io.on("connection", (socket) => {
   });
 });
 
-// ✅ Serve client app
+// Serve client
 app.use(express.static(path.join(__dirname, "../client")));
 app.use((req, res) => {
   res.sendFile(path.join(__dirname, "../client/index.html"));
