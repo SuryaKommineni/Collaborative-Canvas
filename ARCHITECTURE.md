@@ -8,8 +8,6 @@ This document explains how real-time drawing works, how messages are sent using 
 
 The diagram below shows how a user action becomes a canvas update for everyone:
 
-> *(Make sure your image is located in `/docs/data_flow_detailed.png`. If stored elsewhere, update the relative path.)*
-
 ![Data Flow Diagram](./docs/data_flow_detailed.png)
 
 ---
