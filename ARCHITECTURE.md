@@ -1,79 +1,115 @@
-## 1. Data Flow Diagram — How Drawing Events Flow
+# 🏗️ ARCHITECTURE.md — Collaborative Real-Time Drawing Canvas
 
-The following diagram shows the flow of drawing operations starting from user interaction to final rendering on all connected canvases.
+This document explains how real-time drawing works, how messages are sent using WebSockets, how undo/redo is handled globally, why certain optimizations were chosen, and how simultaneous drawing conflicts are resolved.
 
-### 🖼️ Data Flow Diagram
+---
+
+##  Data Flow Diagram — How Drawing Events Flow
+
+The diagram below shows how a user action becomes a canvas update for everyone:
+
+> *(Make sure your image is located in `/docs/data_flow_detailed.png`. If stored elsewhere, update the relative path.)*
 
 ![Data Flow Diagram](./docs/data_flow_detailed.png)
 
 ---
 
-### 🔍 Explanation
+### 🔍 Explanation (Flow Summary)
 
 | Step | Component | What happens |
 |------|-----------|--------------|
-| 1 | **User (mouse/touch)** | User drags mouse or finger to draw on canvas |
-| 2 | **canvas.js** | Captures stroke points and generates draw operations |
-| 3 | **websocket.js** | Sends events such as `draw`, `op`, `undo`, `redo` to server via WebSockets (Socket.IO) |
-| 4 | **server.js (Socket.IO backend)** | Receives operations, assigns IDs, stores them, broadcasts to all clients |
-| 5 | **drawing-state.js** | Maintains operation history, manages global Undo/Redo |
-| 6 | **Other clients** | Receive operations and redraw them on their canvas |
+| 1 | **User** | Draws using mouse/touch on canvas |
+| 2 | **canvas.js** | Captures stroke points as the user draws |
+| 3 | **websocket.js** | Sends real-time updates (`draw`) and finalized operations (`op`) |
+| 4 | **server.js (Socket.IO)** | Saves and broadcasts operations to all connected users |
+| 5 | **drawing-state.js** | Manages shared history + undo/redo logic |
+| 6 | **Clients** | Receive operations & redraw strokes consistently |
 
 ---
 
-### Types of events sent to server:
+##  WebSocket Protocol — Messages Sent & Received
 
-| Event name | Purpose |
-|------------|----------|
-| `draw` | Temporary real-time preview while user is drawing |
-| `op` | Finalized stroke saved into shared history |
-| `undo` / `redo` | Manipulates shared history and updates all clients |
-| `pointer` | Sends cursor location and username to other users |
+The app uses **Socket.IO** to keep all users synchronized.
 
-> ✅ Every client always gets the same consistent history, so all canvases stay in sync.
+| Event | Direction | Payload | Purpose |
+|--------|----------|----------|---------|
+| `draw` | Client ➜ Server ➜ Other Clients | `{ tool, color, width, points, temp: true }` | Temporary preview while drawing (not stored). |
+| `op` | Client ➜ Server ➜ All Clients | `{ tool, color, width, startX, startY, endX, endY, active: true }` | Final operation saved into shared canvas history. |
+| `undo` / `redo` | Client ➜ Server ➜ All Clients | *(no payload)* | Server updates history and broadcasts latest state. |
+| `history` | Server ➜ Client | `[ {op1}, {op2}, ... ]` | Sends active operations to new users. |
+| `pointer` | Client ➜ Server ➜ Other Clients | `{ clientId, username, color, x, y }` | Real-time cursor sharing. |
+| `userList` | Server ➜ All Clients | `[ {id, username, color} ]` | Keeps UI updated with active users. |
+| `removeCursor` | Server ➜ All Clients | `{ clientId }` | Removes cursor when user disconnects. |
 
-## 2. WebSocket Protocol — Messages Sent & Received
-
-The project uses **Socket.IO (WebSockets)** for bi-directional communication between clients and the server.
-
----
-
-### 🔄 Message Types and Payloads
-
-| Event Name | Direction | Payload Example | Purpose |
-|------------|------------|----------------|---------|
-| `draw` | Client ➜ Server ➜ Other Clients | ```json { "tool": "brush", "color": "#000", "width": 4, "points": [[x1,y1],[x2,y2]], "temp": true } ``` | Live/temporary drawing preview while user is drawing (not saved in history). |
-| `op` | Client ➜ Server ➜ All Clients | ```json { "tool": "rectangle", "color": "#ff0000", "startX": 100, "startY": 200, "endX": 300, "endY": 350, "active": true } ``` | Final drawing operation — stored in global state and broadcast to all users. |
-| `undo` | Client ➜ Server ➜ All Clients | *(no payload)* | Removes last active operation from history (global undo). |
-| `redo` | Client ➜ Server ➜ All Clients | *(no payload)* | Restores last undone operation (global redo). |
-| `history` | Server ➜ Client | ```json [ {op1}, {op2}, {op3} ] ``` | Sends the complete list of **active drawing operations** to a newly joined client. |
-| `pointer` | Client ➜ Server ➜ Other Clients | ```json { "clientId": "...", "x": 501, "y": 221, "color": "#4363d8", "username": "User-2" } ``` | Shares user's cursor location + username with others for real-time cursor display. |
-| `userList` | Server ➜ All Clients | ```json [ {"id": "...", "username": "User-1", "color": "#e6194B"} ] ``` | Informs all clients about currently online users. |
-| `removeCursor` | Server ➜ All Clients | ```json { "clientId": "..." } ``` | Removes a user cursor from the canvas when they disconnect. |
+> `draw` = preview  
+> `op` = final committed stroke stored by server
 
 ---
 
-### 📡 Client-side WebSocket API (`websocket.js`)
+##  Undo/Redo Strategy — Handling Global Operations
 
-```javascript
-ws.sendOp(op);        // emits: 'op'
-ws.sendDraw(segment); // emits: 'draw'
-ws.sendUndo();        // emits: 'undo'
-ws.sendRedo();        // emits: 'redo'
-ws.sendPointer(data); // emits: 'pointer'
-ws.on("event", fn);   // listen for events
+The server maintains a **shared global history** of canvas actions using two arrays:
+
+ops[] → active and inactive operations (full history)
+undoneStack[] → temporarily removed operations (used for redo)
+
+
+How undo works:
+1. Server finds the **latest active** operation.
+2. Marks it as `active = false`, pushes it into `undoneStack`.
+3. Sends updated `history` to all clients → all canvases update the same way.
+
+How redo works:
+1. Server restores the last operation from `undoneStack`.
+2. Marks it active again and broadcasts updated `history`.
+
+Because undo/redo is controlled **only by the server**, the canvas remains consistent for all users.
+
+> Undo/Redo is **not per-user**, it affects the shared canvas for everyone.
 
 ---
 
-### 🧠 Server-side Behavior (server.js)
+##  Performance Decisions — Why These Optimizations Were Chosen
 
-```javascript
-socket.on("draw", data => socket.broadcast.emit("draw", data));
-socket.on("op", data => io.emit("op", savedOperation));
-socket.on("undo", () => io.emit("history", updatedOps));
-socket.on("redo", () => io.emit("history", updatedOps));
-socket.on("pointer", data => socket.broadcast.emit("pointer", data));
+To keep collaboration smooth and low-latency:
+
+- **Only small preview segments are sent while drawing** (`draw` events).
+- **Only one final operation is stored per stroke** (`op` event).
+- Canvas is redrawn **only when needed** (undo/redo or history update).
+- Server stores **operations**, not screenshots — allows efficient canvas rebuild.
+- Cursor updates (`pointer`) are sent **separately** to avoid clogging drawing events.
+
+These decisions reduce WebSocket payload size, CPU usage, and keep rendering fast even when multiple users draw simultaneously.
 
 ---
 
+##  Conflict Resolution — Handling Simultaneous Drawing
+
+There is **no canvas locking**. Users can draw at the same time.
+
+- Each drawing action becomes a separate operation.
+- Server processes operations FIFO (first in, first out).
+- Every operation gets a unique ID and is added to global history.
+- Undo always removes the **latest global operation**, not the latest user action.
+
+This ensures:
+- No race conditions
+- No overwriting of strokes
+- Consistent canvas for every user
+
+> Simultaneous drawing becomes a list of ordered operations — not a conflict.
+
+---
+
+### Summary
+
+| Feature | How it's handled |
+|---------|------------------|
+| Real-time drawing | WebSockets (`draw` + `op`) |
+| Global undo/redo | Server maintains `ops[]` + `undoneStack[]` |
+| Multi-user sync | Server broadcasts operations to all clients |
+| No conflicts | Server orders operations FIFO + UUIDs |
+| Performance | Only diffs sent, minimal rendering, lightweight ops |
+
+---
 
