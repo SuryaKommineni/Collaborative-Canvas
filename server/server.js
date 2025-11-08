@@ -60,14 +60,9 @@ io.on("connection", (socket) => {
 });
 
 socket.on("redo", () => {
-  const op = room.state.redo();   // ✅ FIXED
-
-  if (op) {
-    console.log("✅ Redo operation:", op.id);
-
-    // ✅ Send updated full history to all clients
-    io.emit("history", room.state.getActiveOps());
-  }
+  const op = room.state.redo();
+  console.log("REDO OP:", op);
+  if (op) io.emit("history", room.state.getActiveOps());
 });
 
 

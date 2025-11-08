@@ -242,8 +242,13 @@ ws.on("history", (opsFromServer) => {
   console.log("🔄 Received history:", opsFromServer.length);
 
   ops = [...opsFromServer]; // Replace local ops
-  redrawAll(); // ✅ Clear canvas + redraw all ops
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);     // ✅ Clear main canvas
+  cursorCtx.clearRect(0, 0, canvas.width, canvas.height); // ✅ Clear preview layer
+
+  redrawAll(); // ✅ Draw only active ops
 });
+
 
 
 ws.on("userList", (list) => {
