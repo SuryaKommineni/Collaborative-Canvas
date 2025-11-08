@@ -4,7 +4,7 @@ The following diagram shows the flow of drawing operations starting from user in
 
 ### 🖼️ Data Flow Diagram
 
-![Data Flow Diagram](./data_flow_detailed.png)
+![Data Flow Diagram](./docs/data_flow_detailed.png)
 
 ---
 
