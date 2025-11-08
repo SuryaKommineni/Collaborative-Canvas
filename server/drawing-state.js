@@ -30,11 +30,12 @@ class DrawingState {
 
   redo() {
     const op = this.undoneStack.pop();
-    if (op) {
-      op.active = true;
-      return true;
-    }
-    return false;
+    if (!op) return false;
+
+    op.active = true;
+    this.ops.push(op); // ✅ Put back into active operations
+
+    return op;
   }
 }
 
