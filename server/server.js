@@ -53,15 +53,15 @@ io.on("connection", (socket) => {
   });
 
   // Undo / Redo
-  socket.on("undo", () => {
+ socket.on("undo", () => {
   const ok = room.state.undo();
-  console.log("UNDO:", ok, "undoneStack:", room.state.undoneStack.length);
+  console.log("UNDO:", ok, "remaining undo:", room.state.undoneStack.length);
   if (ok) io.emit("history", room.state.getActiveOps());
 });
 
 socket.on("redo", () => {
   const ok = room.state.redo();
-  console.log("REDO:", ok, "undoneStack:", room.state.undoneStack.length);
+  console.log("REDO:", ok, "remaining redo:", room.state.undoneStack.length);
   if (ok) io.emit("history", room.state.getActiveOps());
 });
 

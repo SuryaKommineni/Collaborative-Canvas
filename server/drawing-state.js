@@ -2,14 +2,16 @@ const { v4: uuidv4 } = require("uuid");
 
 class DrawingState {
   constructor() {
-    this.ops = [];         // all drawing operations
-    this.undoneStack = []; // stores undone ops for redo
+    this.ops = [];          // All operations (active + undone)
+    this.undoneStack = [];  // Stores undone ops for redo
   }
 
   appendOp(op, socketId) {
     const newOp = { ...op, id: uuidv4(), clientId: socketId, active: true };
     this.ops.push(newOp);
-    this.undoneStack = []; // reset redo stack
+
+    // ✅ Reset redo stack — new operation deletes redo history
+    this.undoneStack = [];
     return newOp;
   }
 
@@ -18,10 +20,11 @@ class DrawingState {
   }
 
   undo() {
+    // Find last ACTIVE operation
     for (let i = this.ops.length - 1; i >= 0; i--) {
       if (this.ops[i].active) {
         this.ops[i].active = false;
-        this.undoneStack.push(this.ops[i]); // ✅ save op to redo stack
+        this.undoneStack.push(this.ops[i]);
         return true;
       }
     }
@@ -32,7 +35,7 @@ class DrawingState {
     const op = this.undoneStack.pop();
     if (!op) return false;
 
-    op.active = true;  // ✅ just activate it again (do NOT push to ops again)
+    op.active = true;  // ✅ Reactivate instead of pushing again
     return true;
   }
 }

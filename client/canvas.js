@@ -204,8 +204,9 @@ function drawStroke(op) {
 
 function redrawAll() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ops.forEach(drawStroke);
+  ops.forEach((op) => drawStroke(op)); // ✅ correct function
 }
+
 
 // ====== WebSocket Listeners ======
 ws.on("draw", (seg) => {
@@ -237,10 +238,13 @@ ws.on("op", (op) => {
   drawStroke(op);
 });
 
-ws.on("history", (history) => {
-  ops = history;
-  redrawAll();
+ws.on("history", (opsFromServer) => {
+  console.log("🔄 Received history:", opsFromServer.length);
+
+  ops = [...opsFromServer]; // Replace local ops
+  redrawAll(); // ✅ Clear canvas + redraw all ops
 });
+
 
 ws.on("userList", (list) => {
   const usersDiv = document.getElementById("users");
