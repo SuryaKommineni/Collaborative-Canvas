@@ -112,3 +112,11 @@ The server automatically hosts the frontend from the /client folder.
 | Real-time Communication | Socket.IO (WebSockets)               |
 
 
+---
+
+✅ All the required sections included:  
+✔ Setup instructions  
+✔ Test with multiple users  
+✔ Known limitations / bugs  
+✔ Time spent  
+
